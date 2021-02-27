@@ -1,0 +1,113 @@
+<template>
+    <style>
+        div.container {
+            font-size: 1rem;
+            text-align: left;
+            position: relative;
+        }
+
+        input[type=text] {
+            font-size: 1rem;
+            height: 2.25em;
+            padding: 0.25em 2.25em 0.25em 0.6em;
+            width: 100%;
+        }
+
+        input[type=text]:focus {
+            outline: none;
+        }
+
+        fa-icon {
+            align-items: center;
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
+            display: inline-flex;
+            height: 2.25em;
+            justify-content: center;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: linear 150ms;
+            width: 2.25em;
+            z-index: 3;
+        }
+
+        fa-icon:active,
+        fa-icon:hover {
+            background-color: #8D35BD;
+            color: #FFF;
+            transition: linear 150ms;
+        }
+
+        .colored {
+            background-color: #FFF;
+            border: 2px solid #8D35BD;
+            border-radius: 15px;
+        }
+
+        .colored::selection {
+            background-color: #8D35BD;
+            color: #FFF;
+        }
+    </style>
+    <div class="container">
+        <input class="colored" type="text">
+        <fa-icon icon="search">
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let SearchBarProto = Object.create(HTMLInputElement.prototype);
+        SearchBarProto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+
+            Object.defineProperty(this, 'value', {
+                get() {
+                    return shadowRoot.querySelector('input').value;
+                }
+            });
+
+            let self = this;
+            shadowRoot.querySelector('fa-icon').addEventListener('click', function onClick() {
+                search();
+            });
+            shadowRoot.querySelector('input[type=text]').addEventListener('keypress', function onKeyPress(e) {
+                if (e.key === 'Enter') search();
+            });
+
+            function search(e) {
+                spotifyService.search(self.value, ['album', 'artist', 'track'])
+                    .then(res => res.json()
+                        .then(data => {
+                            storageService.add('searchResult', filter(data));
+                            router.redirect('results.html');
+                        }));
+            };
+        }
+
+        function filter(data) {
+            let default_image = {
+                url: '/assets/images/default.png'
+            }
+
+            data.artists.items = data.artists.items.filter(artist => artist.popularity > 50);
+
+            data.artists.items.forEach(artist => {
+                if (artist.images.length == 0) artist.images.push(default_image);
+            });
+
+            return data;
+        }
+
+        window.SearchBar = parent.registerElement('search-bar', {
+            prototype: SearchBarProto
+        });
+    })(window, document);
+
+</script>

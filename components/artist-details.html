@@ -1,0 +1,95 @@
+<template>
+    <style>
+        #container {
+            margin-bottom: 5px;
+        }
+
+        .artist {
+            align-items: center;
+            background-color: #161616;
+            color: #FFF;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            padding: 15px 5px;
+        }
+
+        .artist>img {
+            box-shadow: 0 2px 3px rgba(141, 53, 189, 1), 0 0 0 0 rgba(141, 53, 189, 1);
+            border-radius: 50%;
+            height: 200px;
+            width: 200px;
+        }
+
+        back-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .container {
+            padding: 8px;
+        }
+
+        .container .title {
+            color: rgb(141, 53, 189);
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 1px rgba(141, 53, 189, 0.2);
+        }
+
+        @media screen and (max-width: 768px) {
+            .artist {
+                justify-content: space-between;
+                padding: 15px 0;
+            }
+
+            .artist>img {
+                margin: 0 10px;
+                height: 100px;
+                width: 120px;
+            }
+        }
+    </style>
+    <div id="container">
+        <div class="artist">
+            <back-button></back-button>
+            <img src="{{images[0].url}}">
+            <p>{{name}}</p>
+            <p>{{followers.total}} followers</p>
+        </div>
+        <div class="container">
+            <p class="title">Top tracks</p>
+            <element-list class="content" tag="music-item" items="{{dataLocation}}" exp="tracks"></element-list>
+        </div>
+        <div class="container">
+            <p class="title">Related artists</p>
+            <element-list class="content" tag="artist-item" items="{{dataLocation}}" exp="artists"></element-list>
+        </div>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLDivElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+
+            let item = Object.assign({
+                dataLocation: 'JSON.parse(localStorage.getItem(\'artist\'))'
+            }, JSON.parse(localStorage.getItem('artist')));
+            helper.bindData(template.getElementById('container'), item);
+
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+        };
+
+        window.ArtistDetails = parent.registerElement('artist-details', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

@@ -1,0 +1,68 @@
+<template>
+    <style>
+        #container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .album-front {
+            background-color: #161616;
+        }
+
+        .album-front>img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .album-front>p {
+            color: #FFF;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        back-button {
+            color: #FFF;
+            position: absolute;
+        }
+
+        @media screen and (max-width: 355px) {
+            back-button {
+                color: #000;
+            }
+        }
+    </style>
+
+    <div id="container">
+        <back-button></back-button>
+        <div class="album-front">
+            <img src="{{images[1].url}}">
+            <p>{{name}}</p>
+        </div>
+        <element-list tag="music-item" items="{{dataLocation}}" exp="tracks.items"></element-list>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLDivElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+
+            let item = Object.assign({
+                dataLocation: 'JSON.parse(localStorage.getItem(\'album\'))'
+            }, JSON.parse(localStorage.getItem('album')));
+            helper.bindData(template.getElementById('container'), item);
+
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+        };
+
+        window.AlbumDetails = parent.registerElement('album-details', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

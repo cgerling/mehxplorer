@@ -1,0 +1,53 @@
+<template>
+    <style>
+        #container {
+            font-size: 1rem;
+            height: 2.25em;
+        }
+
+        fa-icon {
+            align-items: center;
+            border-bottom-right-radius: 10px;
+            display: inline-flex;
+            height: 2.25em;
+            width: 2.24em;
+            justify-content: center;
+            transition: linear 150ms;
+        }
+
+        fa-icon:active,
+        fa-icon:hover {
+            background-color: #8D35BD;
+            color: #FFF;
+            transition: linear 150ms;
+        }
+    </style>
+    <div id="container">
+        <fa-icon icon="arrow-left"></fa-icon>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLAnchorElement.prototype);
+
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+
+            shadowRoot.querySelector('#container').addEventListener('click', function clicked() {
+                window.history.back();
+            });
+        };
+
+        window.BackButton = parent.registerElement('back-button', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

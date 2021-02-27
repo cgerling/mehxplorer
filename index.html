@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="theme-color" content="#8D35BD">
+
+    <title>Mehxplorer</title>
+
+    <link rel="import" href="/components/fa-icon.html">
+    <link rel="import" href="/components/search-bar.html">
+
+    <link rel="stylesheet" href="/css/font-awesome.import.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+
+<body>
+    <div id="app-container">
+        <search-bar></search-bar>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function documentReady(event) {
+            spotifyService.verifyAuth();
+        });
+    </script>
+
+    <script src="/js/router.js"></script>
+    <script src="/js/storageService.js"></script>
+    <script src="/js/spotifyService.js"></script>
+
+</body>
+
+</html>

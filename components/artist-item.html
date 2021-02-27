@@ -1,0 +1,85 @@
+<template>
+    <style>
+        #container {
+            align-items: center;
+            border-radius: 3px;
+            box-shadow: 0 2px 3px rgba(141, 53, 189, 0.2), 0 0 0 0 rgba(141, 53, 189, 0.2);
+            cursor: pointer;
+            display: flex;
+            flex-basis: 0;
+            flex-grow: 1;
+            flex-shrink: 1;
+            justify-content: space-between;
+            max-width: 100%;
+            padding: 5px;
+            position: relative;
+            transition: linear 200ms;
+        }
+
+        #container:hover {
+            box-shadow: 2px 3px 5px rgba(141, 53, 189, 0.5);
+            transition: linear 200ms;
+        }
+
+        img {
+            border-radius: 50%;
+            display: inline-block;
+            height: 90px;
+            width: 90px;
+        }
+
+        p {
+            color: #8D35BD;
+            text-align: center;
+            width: 50%;
+        }
+    </style>
+    <div id="container">
+        <img src="{{images[0].url}}">
+        <p>{{name}}</p>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLDivElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+        };
+
+        Proto.attachedCallback = function attached() {
+            let item = helper.valueOf(this.attributes[0].value, eval(this.attributes.data.value));
+            helper.bindData(this.shadowRoot.getElementById('container'), item);
+
+            this.shadowRoot.getElementById('container').addEventListener('click', function clicked() {
+                let artist = {};
+                let promisses_resolved = [];
+
+                let success = res => res.json().then(data => {
+                    Object.assign(artist, data);
+                    promisses_resolved.push(true);
+
+                    if (promisses_resolved.length === 4) {
+                        storageService.add('artist', artist);
+                        router.redirect('artist.html');
+                    }
+                });
+
+                spotifyService.getArtist(item.id).then(success);
+                spotifyService.getTopTracks(item.id).then(success);
+                spotifyService.getRelatedArtists(item.id).then(success);
+                spotifyService.getArtistAlbum(item.id).then(success);
+            });
+        };
+
+        window.ArtistItem = parent.registerElement('artist-item', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

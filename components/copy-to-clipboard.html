@@ -1,0 +1,31 @@
+<template>
+    <style></style>
+    <div id="container">
+        <fa-icon icon="clone"></fa-icon>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLDivElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+        };
+
+        Proto.attachedCallback = function attached() {
+            this.shadowRoot.getElementById('container').addEventListener('click', function clicked() {
+                console.log(this);
+            });
+        }
+
+        window.CopyToClipboard = parent.registerElement('copy-to-clipboard', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

@@ -1,0 +1,65 @@
+<template>
+    <style>
+        #container {
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            box-shadow: 0 2px 3px rgba(141, 53, 189, 0.2), 0 0 0 0 rgba(141, 53, 189, 0.2);
+            box-sizing: content-box;
+            cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            width: 295px;
+        }
+
+        img {
+            height: 300px;
+            width: 295px;
+        }
+
+        p {
+            text-align: center;
+            margin: 0;
+            max-width: 100%;
+            padding: 5px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    </style>
+
+    <div id="container">
+        <img src="{{images[0].url}}">
+        <p>{{name}}</p>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLDivElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+        };
+
+        Proto.attachedCallback = function attached() {
+            let item = helper.valueOf(this.attributes[0].value, eval(this.attributes.data.value));
+            helper.bindData(this.shadowRoot.getElementById('container'), item);
+
+            this.shadowRoot.getElementById('container').addEventListener('click', function clicked() {
+                spotifyService.getAlbum(item.id).then(res => res.json().then(data => {
+                    storageService.add('album', data);
+                    router.redirect('album.html');
+                }));
+            });
+        };
+
+        window.AlbumItem = parent.registerElement('album-item', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

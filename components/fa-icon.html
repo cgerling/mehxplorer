@@ -1,0 +1,44 @@
+<template>
+    <style>
+        @import '../css/font-awesome.min.css';
+    </style>
+
+    <span class="fa "></span>
+</template>
+
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLSpanElement.prototype);
+
+        Proto.icon = '';
+
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+
+            this.iconElem = shadowRoot.querySelector('span');
+
+            if (this.hasAttribute('icon')) this.setType(this.getAttribute('icon'));
+        };
+
+        Proto.attributeChangedCallback = function attrChanged(attr, oldVal, newVal) {
+            if (attr === 'icon') this.setIcon(newVal);
+        };
+
+        Proto.setType = function setIcon(val) {
+            this.iconElem.className = 'fa ';
+            this.iconElem.className += this.icon = `fa-${val}`;
+        };
+
+        window.FAIcon = parent.registerElement('fa-icon', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>

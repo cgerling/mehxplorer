@@ -1,0 +1,72 @@
+<template>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLUListElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+            let clone = parent.importNode(template, true);
+
+            computeAttrs.bind(this)();
+
+            this.data = helper.valueOf(this.exp, getValue(this.items));
+            let size = getSize(this.data, this.length);
+
+            appendChilds(clone, createElementList(size, { tag: this.tag, attrs: { exp: this.exp, data: `${this.items}.${this.exp}` } }));
+
+            shadowRoot.appendChild(clone);
+        };
+
+        window.ArtistList = parent.registerElement('element-list', {
+            prototype: Proto
+        });
+
+        function computeAttrs() {
+            for (let attr of this.attributes) {
+                this[attr.name] = attr.value;
+            }
+        };
+
+        function getSize(list, length) {
+            let size = 0;
+
+            if (list) size = list.length;
+            else if (length) size = length;
+
+            return size;
+        };
+
+        function createElementList(length = 0, { tag = '', attrs }) {
+            let childs = [];
+            for (let i = 0; i < length; i++) {
+                childs.push(createElement(tag, { item: `[${i}]`, data: attrs.data }));
+            }
+
+            return childs;
+        };
+
+        function createElement(tag = '', attrs) {
+            let element = document.createElement(tag);
+
+            for (let attrName in attrs) {
+                element.setAttribute(attrName, attrs[attrName]);
+            }
+
+            return element;
+        };
+
+        function appendChilds(parent, childs = []) {
+            childs.forEach(function append(child) {
+                parent.appendChild(child);
+            });
+        };
+
+        function getValue(exp) {
+            return eval(exp);
+        };
+    })(window, document);
+
+</script>

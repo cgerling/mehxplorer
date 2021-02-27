@@ -1,0 +1,52 @@
+<template>
+    <style>
+        #container {
+            padding: 0 10px;
+        }
+
+        .title {
+            color: rgb(141, 53, 189);
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 1px rgba(141, 53, 189, 0.2);
+        }
+    </style>
+    <div id="container">
+        <div>
+            <p class="title">Artists</p>
+            <element-list id="artists" tag="artist-item" items="{{dataLocation}}" exp="artists.items"></element-list>
+        </div>
+        <div>
+            <p class="title">Albums</p>
+            <element-list id="albums" tag="album-item" items="{{dataLocation}}" exp="albums.items"></element-list>
+        </div>
+        <div>
+            <p class="title">Tracks</p>
+            <element-list id="songs" tag="music-item" items="{{dataLocation}}" exp="tracks.items"></element-list>
+        </div>
+    </div>
+</template>
+<script>
+    (function create(window, parent) {
+        let self = (parent._currentScript || parent.currentScript).ownerDocument;
+        let template = self.querySelector('template').content;
+
+        let Proto = Object.create(HTMLDivElement.prototype);
+        Proto.createdCallback = function created() {
+            let shadowRoot = this.createShadowRoot();
+
+            helper.bindData(template.getElementById('container'), {
+                dataLocation: 'JSON.parse(localStorage.getItem(\'searchResult\'))'
+            });
+
+            let clone = parent.importNode(template, true);
+
+            shadowRoot.appendChild(clone);
+        };
+
+        window.SearchResult = parent.registerElement('search-result', {
+            prototype: Proto
+        });
+    })(window, document);
+
+</script>
